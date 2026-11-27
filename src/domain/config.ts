@@ -1,0 +1,71 @@
+import type { EnemyKind, UpgradeId, UpgradeOption, WeaponId, WeaponSpec } from '../contracts';
+
+export const WEAPONS: Record<WeaponId, WeaponSpec> = {
+  pistol: { id:'pistol', name:'制式手枪', price:0, damage:12, rate:4, magazine:12, reload:0.9, noise:12, pellets:1, reserve:Infinity, model:'pistol-42de05' },
+  smg: { id:'smg', name:'冲锋枪', price:300, damage:7, rate:10, magazine:32, reload:1.4, noise:14, pellets:1, reserve:192, model:'rifle-df1815' },
+  shotgun: { id:'shotgun', name:'霰弹枪', price:600, damage:9, rate:1.4, magazine:6, reload:2.2, noise:20, pellets:8, reserve:48, model:'bolt-action-rifle-2f1793' },
+  pulse: { id:'pulse', name:'脉冲机枪', price:1200, damage:11, rate:11, magazine:60, reload:2, noise:16, pellets:1, reserve:300, model:'rotary-cannon-e2114b' },
+  rocket: { id:'rocket', name:'火箭筒', price:2000, damage:180, rate:0.8, magazine:4, reload:2.6, noise:24, pellets:1, reserve:20, model:'rocket-launcher-032299' },
+};
+export const SHOP_ITEMS = {
+  silencer: { id:'silencer', name:'消音器', price:400, description:'枪声 ×0.2，伤害 −10%' },
+  ammo: { id:'ammo', name:'备弹补给', price:60, description:'补满当前武器备弹' },
+  health: { id:'health', name:'急救包', price:80, description:'恢复 40 HP' },
+} as const;
+export const UPGRADES: Record<UpgradeId, Omit<UpgradeOption,'stacks'>> = {
+  health:{id:'health',name:'硬化生命',description:'生命上限 +20',line:'combat',maxStacks:5},
+  damage:{id:'damage',name:'穿甲弹头',description:'伤害 +10%',line:'combat',maxStacks:6},
+  fireRate:{id:'fireRate',name:'高速机件',description:'射速 +8%',line:'combat',maxStacks:5},
+  speed:{id:'speed',name:'轻量装备',description:'移速 +5%',line:'combat',maxStacks:4},
+  reload:{id:'reload',name:'快速装填',description:'换弹速度 +15%',line:'combat',maxStacks:3},
+  critical:{id:'critical',name:'精确打击',description:'暴击率 +6%，暴击双倍伤害',line:'combat',maxStacks:5},
+  dash:{id:'dash',name:'冲刺恢复',description:'冲刺冷却 −15%',line:'combat',maxStacks:3},
+  pickup:{id:'pickup',name:'磁力回收',description:'拾取半径 +30%',line:'combat',maxStacks:3},
+  regeneration:{id:'regeneration',name:'组织再生',description:'每秒恢复 0.5 HP',line:'combat',maxStacks:3},
+  flashlight:{id:'flashlight',name:'强化手电',description:'手电范围 +20%',line:'dark',maxStacks:3},
+  nightVision:{id:'nightVision',name:'夜视轮廓',description:'暗处 8m 内敌人描边',line:'dark',maxStacks:1},
+  quiet:{id:'quiet',name:'静步',description:'脚步声半径 −30%',line:'dark',maxStacks:2},
+  heartbeat:{id:'heartbeat',name:'心跳预警',description:'20m 内 Boss 方位心跳',line:'dark',maxStacks:1},
+  greed:{id:'greed',name:'贪婪',description:'金币掉落 +10%',line:'economy',maxStacks:3},
+  learning:{id:'learning',name:'好学',description:'经验 +10%',line:'economy',maxStacks:3},
+};
+export interface EnemySpec { hp:number; damage:number; speed:number; xp:number; gold:readonly [number,number]; radius:number }
+export const ENEMY_SPECS: Record<EnemyKind,EnemySpec> = {
+  bug:{hp:30,damage:8,speed:3.4,xp:1,gold:[2,4],radius:0.55},
+  aphid:{hp:18,damage:25,speed:3.8,xp:1,gold:[2,3],radius:0.4},
+  parasite:{hp:18,damage:2,speed:3.8,xp:1,gold:[2,3],radius:0.35},
+  centipede:{hp:90,damage:10,speed:3,xp:3,gold:[6,9],radius:1.1},
+  queen:{hp:100,damage:12,speed:0,xp:3,gold:[6,9],radius:1.2},
+  cocoon:{hp:15,damage:0,speed:0,xp:0,gold:[0,0],radius:0.45},
+  spider:{hp:45,damage:14,speed:4.6,xp:2,gold:[4,6],radius:0.65},
+  corpseSpider:{hp:45,damage:14,speed:4.6,xp:2,gold:[4,6],radius:0.65},
+  wasp:{hp:22,damage:6,speed:4,xp:2,gold:[3,5],radius:0.45},
+  bat:{hp:12,damage:5,speed:5,xp:1,gold:[1,2],radius:0.35},
+  mantis:{hp:70,damage:18,speed:3.2,xp:3,gold:[6,8],radius:0.65},
+  crab:{hp:110,damage:12,speed:2.6,xp:3,gold:[7,10],radius:0.7},
+  beetle:{hp:130,damage:22,speed:2.8,xp:4,gold:[8,12],radius:0.85},
+  raptor:{hp:55,damage:10,speed:4.8,xp:2,gold:[4,6],radius:0.65},
+  moth:{hp:40,damage:16,speed:2.8,xp:3,gold:[5,8],radius:0.65},
+  ghoul:{hp:80,damage:16,speed:3.6,xp:3,gold:[6,9],radius:0.8},
+  jellyfish:{hp:55,damage:12,speed:1.6,xp:3,gold:[5,8],radius:0.7},
+  mimic:{hp:95,damage:18,speed:4,xp:4,gold:[12,18],radius:0.6},
+  eel:{hp:70,damage:18,speed:8,xp:3,gold:[6,9],radius:0.65},
+  worm:{hp:1800,damage:30,speed:0,xp:60,gold:[300,300],radius:2},
+  slug:{hp:3000,damage:15,speed:1.1,xp:60,gold:[300,300],radius:2.2},
+};
+export const RULES = {
+  worldSize:80, halfWorld:40, playerRadius:0.4, playerSpeed:4.2, dashDistance:3,
+  dashDuration:0.15, dashCooldown:2.5, pickupRadius:1.5, executionRange:1.2,
+  executionThreshold:0.15, executionHeal:8, executionInvulnerability:0.6,
+  magazineRecovery:0.2, comboWindow:3, adrenalineKills:40, slowDuration:3, slowScale:0.35,
+  gateDuration:30, batteries:6, waveInterval:1.2, waveEliteAt:15, shopRange:3,
+  interactionRange:1.8, maxStep:1/60, maxFrame:0.25, enemyCap:110, gateEnemyCap:150,
+  ambientCap:30, nestCap:6, minionCap:4, spawnInterval:6, baseVision:8,
+  shotLife:1.4, bulletSpeed:42, rocketSpeed:20, stingerSpeed:10, projectileRadius:0.07,
+  barrelRadius:3.5, barrelDamage:120, rocketRadius:3, acidDuration:12, fireDuration:5,
+  acidDamage:10, fireDamage:24, slimeDuration:20, slimeScale:0.6, healthPack:20,
+  ammoChance:0.15, ammoRecovery:0.3, electricRange:7, electricChain:4,
+  electricDamage:45, electricStun:1.5, electricRecharge:25, hitGrace:0.35,
+  messageDuration:4, footstepInterval:0.36, footstepNoise:6, partFraction:0.3,
+  armorScale:0.2, frontArc:0.9, gunHeatPerShot:0.1, heatDecay:0.04,
+} as const;

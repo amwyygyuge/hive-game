@@ -48,3 +48,30 @@
 ## 入仓说明
 
 GLB 为二进制，GitHub 连接器只能传文本，故模型文件不经连接器入仓；本记录与 ASSETS.md 入仓，模型 zip 由 Amani 在会话中交付，本地 assets-tuned/ 为准。
+
+## 第三批：全阵容补齐（2026-11-27，脚本 tune_glb3.py）
+
+按族色板统一处理：虫群族=去饱和25%+压暗0.9+紫染；变异兽族=去饱和45%灰褐；甲壳族=去饱和20%+压暗0.88；S级=去饱和50%+压暗0.8苍白灰；Boss=去饱和30%+压暗0.85；工业道具=冷灰；有机布景=暖暗。
+
+| 模型 | 角色 | 缩放→实测尺寸 | 动画 |
+|---|---|---|---|
+| stone-centipede-base | 掘地蜈蚣 | ×1.4 → 长 3.56 m | Crawl/Idle |
+| ant-queen-base | 蚁后 | ×1.3 → 长 2.46 m | Walk/Idle/Run |
+| common-wasp-base | 毒蜂 | ×0.4 → 长 0.86 m | Idle/Fly/Fly fast |
+| bat-base | 墓穴蝠 | ×1.6 → 翼展 0.88 m | Walk/Idle/Run/Fly |
+| praying-mantis-base | 镰刀螳螂 | ×0.3 → 高 1.74 m | Walk/Idle/Run |
+| stag-beetle-base | 冲锋锹甲 | ×0.3 → 长 1.88 m | Walk/Idle/Run |
+| velociraptor-base | 迅猛龙 | ×1.3 → 长 2.12 m、高 1.29 m | Idle/Walk/Run |
+| honey-moth-base | 人面蛾 | ×3.0 → 翼展 1.2 m | Idle/Fly/Fly fast |
+| flesh-eater-base | 大颚食尸兽 | ×1.5 → 长 2.24 m | Walk/Idle/Run |
+| hermit-crab-base | 假电池寄居蟹 | ×0.7 → 0.64 m（电池大小，拟态前提） | Idle/Walk/Run |
+| moray-eel-base | 排水鳗 | ×1.3 → 长 1.65 m | Idle/Swim/Swim fast |
+| moon-jellyfish-0fa43c | 月光水母 | ×0.5 → 高 1.22 m，半透明材质（BLEND）保留 | Idle/Swim/Swim fast |
+| earthworm-base | Boss 钻地沙虫 | ×1.5 → 长 10.0 m | Crawl/Idle |
+| leopard-slug-base | Boss 豹纹巨蛞蝓 | ×1.0 → 长 7.24 m | Crawl/Idle |
+| octopus-base | 备用（深水区怪） | ×0.5 → 1.76 m | Idle/Swim×3 |
+| garden-orb-weaver-base | 备用（织网蛛） | ×0.3 → 1.63 m | Walk/Idle/Run |
+
+布景补齐（×1.0，除注明）：混凝土整管 concrete-full-pipe-section（4 m）、管道接头 pipe-junction、栅栏牢门 barred-cell-door（大门候选）、油桶 oil-drum（环境杀核心道具）、野战控制台 field-console（商店终端）、工地发电机 site-generator、蛛网 orb-web（×0.15 → 3.4×6.5 m 装饰）、蛛网垂幕 cobweb-drape、骨骸散布 skull-and-bone-scatter（使用前需目检骨骼形状是否人形）、黑曜石岩 obsidian-fang-rock、红渣岩 red-scoria-rock。
+
+注：月光水母的正确资产 ID 是 moon-jellyfish-0fa43c（旧记 moon-jellyfish-base 不存在，CDN 404）。

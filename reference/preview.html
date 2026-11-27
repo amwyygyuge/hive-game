@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>深层巢穴 · 怪物模型参数预览</title>
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  body { background:#050607; color:#d8dcd2; font-family: system-ui, -apple-system, "PingFang SC", sans-serif; overflow:hidden; }
+  #app { display:flex; height:100vh; }
+  #view { flex:1; position:relative; }
+  canvas { display:block; }
+  #hud { position:absolute; top:14px; left:16px; pointer-events:none; }
+  #hud h1 { font-size:17px; font-weight:600; letter-spacing:.06em; color:#e8ecdf; }
+  #hud p { font-size:12px; color:#8a917f; margin-top:4px; }
+  #flash { position:absolute; bottom:14px; left:16px; font-size:12px; color:#aeb69f; background:rgba(10,14,10,.55); padding:6px 10px; border:1px solid #263026; border-radius:6px; }
+  #panel { width:308px; flex:none; background:#0a0d0a; border-left:1px solid #1e261e; overflow-y:auto; padding:14px; }
+  #panel h2 { font-size:13px; color:#9fb08e; letter-spacing:.08em; margin-bottom:10px; }
+  .item { padding:9px 10px; border:1px solid #1c241c; border-radius:8px; margin-bottom:8px; cursor:pointer; background:#0d100d; }
+  .item:hover { border-color:#3d5238; }
+  .item.on { border-color:#7dff4a; background:#10160e; }
+  .item b { font-size:13px; color:#e6ead9; display:block; }
+  .item span { font-size:11px; color:#8a917f; line-height:1.5; display:block; margin-top:2px; }
+  .item .adj { color:#b9c9a4; }
+  #note { font-size:11px; color:#6f7867; line-height:1.6; margin-top:6px; }
+  @media (max-width:760px){ #panel{ width:210px; } }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="view">
+    <div id="hud"><h1>深层巢穴 · 怪物阵容预览</h1><p>参数已按恐怖版调整：缩放 / 压暗改色 / 眼与颚强化 · 拖动旋转，滚轮缩放，点右侧条目聚焦</p></div>
+    <div id="flash">手电扫光中 — 这就是游戏里的照明感：只有光锥里看得清</div>
+  </div>
+  <div id="panel"><h2>阵容与调整参数（点选聚焦）</h2><div id="list"></div>
+  <p id="note">士兵（中间）为 1.8m 身高参照，未改参数。颜色调整为材质乘色（压暗+偏色），几何旋钮以巢虫为例：眼 1.3 / 下颚 1.3 / 上颚 1.25 / 腹部 1.15，条纹改为荧光毒绿 #7dff4a，肉色改血红 #6e1423。模型来源 Polyfork（CC BY / Polyfork licence）。</p></div>
+</div>
+<script type="importmap">
+{ "imports": {
+  "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const ROSTER = [
+  { id:'alien-hive-bug-base', name:'巢虫 · 主力', scale:0.55, tint:0x8f9a86, hover:0, clip:['Run','Walk','Idle'], adj:'×0.55（原 3.2×4.75m）· 眼1.3/双颚拉长 · 毒绿条纹+血红肉' },
+  { id:'flesh-eater-base', name:'大颚食尸兽 · 听声猎手', scale:1.45, tint:0x9a8f96, hover:0, clip:['Run','Walk','Idle'], adj:'×1.45（约2.2m长）· 皮肤去饱和偏灰紫 · 颚部张开位' },
+  { id:'honey-moth-base', name:'人面蛾 · S级', scale:2.8, tint:0xd8d2c4, hover:1.7, clip:['Fly','Fly fast','Idle'], adj:'×2.8（翼展约1.1m）· 悬空1.7m · 保持惨白不压暗，脸最亮' },
+  { id:'sea-ghost-base', name:'雾海幽灵 · S级', scale:1.35, tint:0xbfe0da, hover:0.9, clip:['Idle','Walk'], adj:'×1.35 · 半透明 opacity 0.45 · 青白自发光，无声漂浮' },
+  { id:'tarantula-base', name:'跳蛛 / 尸蛛', scale:5.0, tint:0x7a6a58, hover:0, clip:['Walk','Run','Idle'], adj:'×5.0（体宽约1.65m）· 压暗成枯尸色 · 装死姿态待机' },
+  { id:'common-wasp-base', name:'毒蜂 · 空中远程', scale:0.8, tint:0xa89858, hover:1.9, clip:['Fly','Idle'], adj:'×0.8 · 悬空1.9m · 黄黑对比压低，尾刺高亮' },
+  { id:'bat-base', name:'墓穴蝠 · 暗区群袭', scale:2.2, tint:0x6a625e, hover:2.3, clip:['Fly','Idle'], adj:'×2.2（翼展约1.2m）· 悬空2.3m · 近黑，只留眼点' },
+  { id:'reef-crab-base', name:'横行蟹 · 正面装甲', scale:3.6, tint:0x8a4a3a, hover:0, clip:['Walk','Idle'], adj:'×3.6（宽约3.2m）· 甲壳改暗红 · 只横移' },
+  { id:'stag-beetle-base', name:'冲锋锹甲 · 精英', scale:0.7, tint:0x5e4a3a, hover:0, clip:['Walk','Run','Idle'], adj:'×0.7（仍有4.4m长）· 深棕压暗 · 直线冲锋体型' },
+  { id:'ant-queen-base', name:'蚁后 · 刷怪点守卫', scale:2.6, tint:0x7a3a34, hover:0, clip:['Idle','Walk'], adj:'×2.6（约4.9m长）· 暗红 · 定点不动，体型压迫' },
+  { id:'leopard-slug-base', name:'豹纹巨蛞蝓 · Boss', scale:0.9, tint:0x9aa27a, hover:0, clip:['Walk','Idle'], adj:'×0.9（6.5m长）· 斑点保留 · 湿亮高光，无痛觉慢速碾压' },
+  { id:'earthworm-base', name:'钻地沙虫 · Boss', scale:1.0, tint:0x8a5a4a, hover:-0.35, clip:['Walk','Idle'], adj:'×1.0（6.7m长）· 半埋地下只露背脊 · 破土才现全貌' },
+];
+const SOLDIER = { id:'infantry-rifleman-c1c0a5', name:'士兵（参照）', scale:1.0 };
+
+const view = document.getElementById('view');
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x050607);
+scene.fog = new THREE.FogExp2(0x050607, 0.028);
+const camera = new THREE.PerspectiveCamera(46, 1, 0.1, 200);
+camera.position.set(11, 9, 13);
+const renderer = new THREE.WebGLRenderer({ antialias:true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+view.appendChild(renderer.domElement);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 0.8, 0);
+controls.maxPolarAngle = Math.PI * 0.49;
+
+scene.add(new THREE.AmbientLight(0x2a3328, 0.85));
+const moon = new THREE.DirectionalLight(0x8fa38a, 0.5); moon.position.set(-6, 12, -4); scene.add(moon);
+const flash = new THREE.SpotLight(0xfff2cf, 260, 40, 0.46, 0.55, 1.6);
+flash.castShadow = true; scene.add(flash); scene.add(flash.target);
+const greenGlow = new THREE.PointLight(0x39ff6a, 30, 12, 1.8); greenGlow.position.set(0, 0.7, 0); scene.add(greenGlow);
+
+const ground = new THREE.Mesh(new THREE.CircleGeometry(16, 48), new THREE.MeshStandardMaterial({ color:0x11150f, roughness:1 }));
+ground.rotation.x = -Math.PI/2; ground.receiveShadow = true; scene.add(ground);
+const grid = new THREE.PolarGridHelper(16, 12, 8, 48, 0x2c3a2a, 0x1a241a); grid.position.y = 0.01; scene.add(grid);
+
+const loader = new GLTFLoader();
+const mixers = [], spinners = [], loaded = {};
+function place(obj, x, z){ obj.position.x = x; obj.position.z = z; }
+function tintAndShadow(root, tint, opacity){
+  root.traverse(o => { if (o.isMesh) { o.castShadow = true;
+    if (o.material) { o.material = o.material.clone(); o.material.color = new THREE.Color(tint);
+      if (opacity !== undefined) { o.material.transparent = true; o.material.opacity = opacity; o.material.emissive = new THREE.Color(0x1d3a36); }
+    } } });
+}
+function loadEntry(e, x, z, isSoldier){
+  loader.load('https://polyfork.dev/cdn/' + e.id + '.glb', g => {
+    const root = g.scene;
+    root.scale.setScalar(e.scale);
+    tintAndShadow(root, isSoldier ? 0xffffff : e.tint, e.id==='sea-ghost-base' ? 0.45 : undefined);
+    place(root, x, z); root.position.y = e.hover || 0;
+    root.rotation.y = Math.atan2(-x, -z);
+    scene.add(root); spinners.push({ root, speed: isSoldier ? 0 : (0.12 + Math.random()*0.15), baseY: root.position.y, fly: (e.hover||0) > 0.5, phase: Math.random()*6 });
+    if (g.animations && g.animations.length) {
+      const mixer = new THREE.AnimationMixer(root);
+      const want = (e.clip||[]).map(n => g.animations.find(a => a.name === n)).find(Boolean) || g.animations[0];
+      mixer.clipAction(want).play(); mixers.push(mixer);
+    }
+    loaded[e.name] = root;
+    const el = document.querySelector('[data-name="' + e.name + '"]'); if (el) el.style.opacity = 1;
+  }, undefined, () => { const el = document.querySelector('[data-name="' + e.name + '"]'); if (el) el.querySelector('span').textContent += '（加载失败，检查网络）'; });
+}
+ROSTER.forEach((e, i) => {
+  const a = (i / ROSTER.length) * Math.PI * 2;
+  const r = i % 2 === 0 ? 6.4 : 9.6;
+  loadEntry(e, Math.cos(a)*r, Math.sin(a)*r, false);
+});
+loadEntry(SOLDIER, 0, 0, true);
+
+// side panel
+const list = document.getElementById('list');
+ROSTER.forEach(e => {
+  const d = document.createElement('div'); d.className = 'item'; d.dataset.name = e.name; d.style.opacity = .45;
+  d.innerHTML = '<b>' + e.name + '</b><span class="adj">' + e.adj + '</span>';
+  d.onclick = () => { document.querySelectorAll('.item').forEach(x => x.classList.remove('on')); d.classList.add('on');
+    const o = loaded[e.name]; if (o) { controls.target.set(o.position.x, 0.9, o.position.z); camera.position.set(o.position.x + 4.2, 3.2, o.position.z + 4.2); } };
+  list.appendChild(d);
+});
+
+function resize(){ const w = view.clientWidth, h = view.clientHeight; renderer.setSize(w, h); camera.aspect = w/h; camera.updateProjectionMatrix(); }
+addEventListener('resize', resize); resize();
+
+const clock = new THREE.Clock();
+(function tick(){
+  requestAnimationFrame(tick);
+  const dt = Math.min(clock.getDelta(), 0.05), t = clock.elapsedTime;
+  mixers.forEach(m => m.update(dt));
+  spinners.forEach(s => { s.root.rotation.y += s.speed * dt; if (s.fly) s.root.position.y = s.baseY + Math.sin(t*1.4 + s.phase) * 0.14; });
+  const a = t * 0.35;
+  flash.position.set(Math.cos(a)*13, 7.5, Math.sin(a)*13);
+  flash.target.position.set(Math.cos(a + 1.9)*5, 0, Math.sin(a + 1.9)*5);
+  greenGlow.intensity = 26 + Math.sin(t*2.2) * 7;
+  controls.update(); renderer.render(scene, camera);
+})();
+</script>
+</body>
+</html>

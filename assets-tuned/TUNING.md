@@ -75,3 +75,24 @@ GLB 为二进制，GitHub 连接器只能传文本，故模型文件不经连接
 布景补齐（×1.0，除注明）：混凝土整管 concrete-full-pipe-section（4 m）、管道接头 pipe-junction、栅栏牢门 barred-cell-door（大门候选）、油桶 oil-drum（环境杀核心道具）、野战控制台 field-console（商店终端）、工地发电机 site-generator、蛛网 orb-web（×0.15 → 3.4×6.5 m 装饰）、蛛网垂幕 cobweb-drape、骨骸散布 skull-and-bone-scatter（使用前需目检骨骼形状是否人形）、黑曜石岩 obsidian-fang-rock、红渣岩 red-scoria-rock。
 
 注：月光水母的正确资产 ID 是 moon-jellyfish-0fa43c（旧记 moon-jellyfish-base 不存在，CDN 404）。
+
+## 第四批：楼宇（2026-11-27 补，脚本 tune_glb4.py）
+
+整栋建筑，统一工业冷灰处理（去饱和 30%、压暗 0.78、冷染）。原生即楼宇尺度，除维修机库外均 ×1.0。
+
+| 模型 | 楼宇 | 尺寸（宽×高×深 m） | 游戏用途 |
+|---|---|---|---|
+| command-center-e65850 | 指挥中心 | 8×7.7×8 | 基地主楼/大门厅地表对应物 |
+| reactor-block-13fe72 | 反应堆楼 | 8×6×8 | 供电区地标（电池/大门动力主题） |
+| habitat-dome-8d3499 | 居住穹顶 | 8×7.1×8 | 生活区 |
+| shuttle-hangar-8ff9a3 | 航天机库 | 12×6×12 | 大型库房 |
+| maintenance-hangar-6fab99 | 维修机库 | 原生 56×25×48，×0.3 → 16.8×7.5×14.4 | 维修区 |
+| vehicle-depot-hangar-6adb80 | 车辆库 | 16×13×16 | 车库（全批最高） |
+| observation-tower-69b692 | 观察塔 | 4×12.2×4 | 塔楼地标 |
+| concrete-pillbox-ea855a | 混凝土碉堡 | 4×2.2×4 | 防御工事 |
+| brick-depot-warehouse-3dd642 | 砖仓 | 12×7.2×8 | 储藏区 |
+| dock-warehouse-bf0967 | 码头仓库 | 6×5.2×8 | 储藏区 |
+| rolled-plate-silo-42304a | 筒仓 | 4×9.4×4 | 存储塔 |
+| standby-generator-enclosure-9d48f6 | 发电机楼 | 4×3.6×2 | 供电点小楼 |
+
+至此模型总数 62：角色 1、怪物 20、备用怪 2、枪械 5、建筑构件 8、楼宇 12、道具 14。
